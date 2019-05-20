@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>SSH | записки, шпаргалки и сниппеты</title>
+    <meta name="description" content="Записки сисадмина / devops инженера">
+    
+    
+    <link rel="preload" href="/assets/css/0.styles.a0789b40.css" as="style"><link rel="preload" href="/assets/js/app.1fcda3fc.js" as="script"><link rel="preload" href="/assets/js/7.3db5f5b9.js" as="script"><link rel="prefetch" href="/assets/js/10.b2f4a5d5.js"><link rel="prefetch" href="/assets/js/11.95995d8c.js"><link rel="prefetch" href="/assets/js/12.eee381b8.js"><link rel="prefetch" href="/assets/js/2.97f962e2.js"><link rel="prefetch" href="/assets/js/3.b4256d97.js"><link rel="prefetch" href="/assets/js/4.35418e38.js"><link rel="prefetch" href="/assets/js/5.bcb139d5.js"><link rel="prefetch" href="/assets/js/6.ad024729.js"><link rel="prefetch" href="/assets/js/8.e1708b88.js"><link rel="prefetch" href="/assets/js/9.6754b14f.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.a0789b40.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/logo.png" alt="записки, шпаргалки и сниппеты" class="logo"> <span class="site-name can-hide">записки, шпаргалки и сниппеты</span></a> <div class="links" style="max-width:nullpx;"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">Главная</a></div><div class="nav-item"><a href="/basics/" class="nav-link router-link-active">Базис</a></div><div class="nav-item"><a href="/guides/" class="nav-link">Статьи</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title">Рус/Eng</span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/basics/ssh.html" class="nav-link router-link-exact-active router-link-active">ru</a></li><li class="dropdown-item"><!----> <a href="/en/" class="nav-link">en</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">Главная</a></div><div class="nav-item"><a href="/basics/" class="nav-link router-link-active">Базис</a></div><div class="nav-item"><a href="/guides/" class="nav-link">Статьи</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title">Рус/Eng</span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/basics/ssh.html" class="nav-link router-link-exact-active router-link-active">ru</a></li><li class="dropdown-item"><!----> <a href="/en/" class="nav-link">en</a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/basics/" class="sidebar-link">Shell/Bash</a></li><li><a href="/basics/postgres.html" class="sidebar-link">Postgres</a></li><li><a href="/basics/nginx.html" class="sidebar-link">Nginx</a></li><li><a href="/basics/ssh.html" class="active sidebar-link">SSH</a></li></ul> </div> <div class="page"> <div class="content"><h1 id="ssh"><a href="#ssh" aria-hidden="true" class="header-anchor">#</a> SSH</h1> <p>Актуальная тема проброса портов</p> <p>Проброс 10180 порта с локального на 80 порт удаленного сервера</p> <div class="language-bash extra-class"><pre class="language-bash"><code><span class="token function">ssh</span> -L localhost:10180:192.168.100.1:80 remotepc
+</code></pre></div><p>Проброс 80 порта с удаленного сервера на локальный</p> <div class="language-bash extra-class"><pre class="language-bash"><code><span class="token function">ssh</span> -L 192.168.100.1:80:localhost:10180 remotepc
+</code></pre></div><p>То же самое но полезная утилита в виде проброса сервисом systemd</p> <p>tunnel.service</p> <div class="language-bash extra-class"><pre class="language-bash"><code><span class="token punctuation">[</span>Unit<span class="token punctuation">]</span>
+Description<span class="token operator">=</span>Setup a secure tunnel
+After<span class="token operator">=</span>network.target
+
+<span class="token punctuation">[</span>Service<span class="token punctuation">]</span>
+ExecStart<span class="token operator">=</span>/usr/bin/ssh -NT -o ServerAliveInterval<span class="token operator">=</span>60 -o ExitOnForwardFailure<span class="token operator">=</span>yes -L localhost:10180:192.168.100.1:80 remotepc
+User<span class="token operator">=</span>ansible
+Group<span class="token operator">=</span>ansible
+<span class="token comment"># Restart every &gt;2 seconds to avoid StartLimitInterval failure</span>
+RestartSec<span class="token operator">=</span>5
+Restart<span class="token operator">=</span>always
+
+<span class="token punctuation">[</span>Install<span class="token punctuation">]</span>
+WantedBy<span class="token operator">=</span>multi-user.targeti
+
+</code></pre></div></div> <div class="page-edit"><!----> <!----></div> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/basics/nginx.html" class="prev">
+          Nginx
+        </a></span> <!----></p></div> </div> <!----></div></div>
+    <script src="/assets/js/app.1fcda3fc.js" defer></script><script src="/assets/js/7.3db5f5b9.js" defer></script>
+  </body>
+</html>
